@@ -48,6 +48,11 @@ flash /mnt/data/sra_fastq/{}_1.fastq.gz /mnt/data/sra_fastq/{}_2.fastq.gz \
 
 echo 'made html files'
 
+echo "Use read mapping to check for PhiX contamination"
+echo "Download sequence data from the NCBI"
+singularity exec /proj/applied_bioinformatics/common_data/meta.sif efetch -db nuccore -id NC_001422 -format fasta > /home/x_malev/applied_bioinfo/MedBioinfo/data/reference_seqs/PhiX_NC_001422.fna
+srun --cpus-per-task=1 --time=00:30:00 --account=naiss2024-22-540 singularity exec /proj/applied_bioinformatics/common_data/meta.sif bowtie2-build -f ./reference_seqs/PhiX_NC_001422.fna ./bowtie2_DBs/PhiX_bowtie2_DB
+srun  --cpus-per-task=8 --time=03:00:00 --account=naiss2024-22-540 singularity exec /proj/applied_bioinformatics/common_data/meta.sif bowtie2 -x ./data/bowtie2_DBs/PhiX_bowtie2_DB -U ./data/merged_pairs/ERR*extendedFrags.fastq -S ./analysis/bowtie/x_malev_merged2PhiX.sam --threads 8 --no-unal 2>&1 | tee ./analyses/bowtie/x_malev_bowtie2_PhiX.log
 
 #Day 1 exercise 
 srun --cpus-per-task=2 --time=00:30:00 --account=naiss2024-22-
